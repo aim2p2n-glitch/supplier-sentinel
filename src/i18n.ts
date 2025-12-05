@@ -1,19 +1,21 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import HttpBackend from 'i18next-http-backend';
-
-// Use backend to load translations from public/locales
-// You may need to move locales to public/ for production, but for dev src/locales works
+import enTranslations from './locales/en.json';
+import hiTranslations from './locales/hi.json';
 
 i18n
-  .use(HttpBackend)
   .use(initReactI18next)
   .init({
     lng: 'en',
     fallbackLng: 'en',
     debug: false,
-    backend: {
-      loadPath: '/src/locales/{{lng}}.json'
+    resources: {
+      en: {
+        translation: enTranslations
+      },
+      hi: {
+        translation: hiTranslations
+      }
     },
     interpolation: {
       escapeValue: false

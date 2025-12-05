@@ -22,14 +22,25 @@ export default function IncidentsPage() {
     async function fetchIncidents() {
       setLoading(true);
       try {
-        const response = await fetch("https://genailab.tcs.in/v1/chat/completions", {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL;
+        const apiKey = import.meta.env.VITE_API_KEY;
+        const apiModel = import.meta.env.VITE_API_MODEL;
+
+        if (!apiUrl || !apiKey || !apiModel) {
+          console.error('Missing API configuration. Please check your .env file.');
+          setIncidents([]);
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(apiUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": "Bearer sk-go1yJFk9G5u7vZR935Qt1g"
+            "Authorization": `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            model: "azure/genailab-maas-gpt-4o",
+            model: apiModel,
             messages: [
               {
                 role: "system",
