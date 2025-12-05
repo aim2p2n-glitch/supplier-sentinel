@@ -38,6 +38,8 @@ const App = () => (
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/agent" element={<Agent />} />
           <Route path="/incidents" element={<IncidentsPage />} />
+          <Route path="/sla-monitor" element={<SLAMonitor />} />
+          <Route path="/interventions" element={<Interventions />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
