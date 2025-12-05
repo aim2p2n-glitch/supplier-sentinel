@@ -277,67 +277,63 @@ export const ChatBot = () => {
 
   return (
     <>
-      {/* Chat Icon Button */}
+      {/* Chat Icon Button - Bottom Right */}
       <motion.div
-        className="fixed top-6 right-6 z-50"
+        className="fixed bottom-6 right-6 z-50"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: 'spring', stiffness: 260, damping: 20 }}
       >
         <Button
           onClick={() => setIsOpen(!isOpen)}
-          className="rounded-full w-14 h-14 shadow-lg hover:shadow-xl transition-shadow"
+          className="rounded-full w-16 h-16 shadow-2xl hover:shadow-3xl transition-shadow"
           size="icon"
         >
           {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
         </Button>
       </motion.div>
 
-      {/* Overlay */}
+      {/* Chat Window - Small Modal Bottom Right */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
-            onClick={() => setIsOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Chat Window - Full Height Right Side */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed top-0 right-0 w-full md:w-[500px] lg:w-[600px] h-screen bg-card border-l border-border shadow-2xl z-50 flex flex-col"
-          >
+          <>
+            {/* Backdrop Blur */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-background/60 backdrop-blur-sm z-40"
+              onClick={() => setIsOpen(false)}
+            />
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed bottom-24 right-6 w-[90vw] md:w-[380px] h-[500px] bg-card border border-border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+            >
             {/* Header */}
-            <div className="p-6 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-xl flex items-center gap-2">
-                  <MessageCircle className="w-6 h-6 text-primary" />
+            <div className="p-4 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-lg flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-primary" />
                   Supplier Assistant
                 </h3>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setIsOpen(false)}
-                  className="hover:bg-primary/10"
+                  className="hover:bg-primary/10 h-8 w-8"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </Button>
               </div>
-              <p className="text-sm text-muted-foreground">Ask me about suppliers, metrics, and analytics</p>
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 p-6" ref={scrollRef}>
-              <div className="space-y-4">
+            <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+              <div className="space-y-3">
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
@@ -387,7 +383,7 @@ export const ChatBot = () => {
             </ScrollArea>
 
             {/* Input */}
-            <div className="p-6 border-t border-border bg-background">
+            <div className="p-4 border-t border-border bg-background">
               {/* Image Preview */}
               {selectedImage && (
                 <motion.div
@@ -438,7 +434,7 @@ export const ChatBot = () => {
                 </motion.div>
               )}
               
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -457,47 +453,47 @@ export const ChatBot = () => {
                   onClick={() => fileInputRef.current?.click()} 
                   size="icon" 
                   variant="outline"
-                  className="h-12 w-12"
+                  className="h-10 w-10"
                   disabled={isRecording}
                   title="Upload image"
                 >
-                  <ImageIcon className="w-5 h-5" />
+                  <ImageIcon className="w-4 h-4" />
                 </Button>
                 <Button 
                   onClick={() => documentInputRef.current?.click()} 
                   size="icon" 
                   variant="outline"
-                  className="h-12 w-12"
+                  className="h-10 w-10"
                   disabled={isRecording}
                   title="Upload document"
                 >
-                  <Paperclip className="w-5 h-5" />
+                  <Paperclip className="w-4 h-4" />
                 </Button>
                 <Input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isRecording ? "Listening..." : "Ask about suppliers, alerts, performance..."}
-                  className="flex-1 h-12"
+                  placeholder={isRecording ? "Listening..." : "Ask about suppliers..."}
+                  className="flex-1 h-10"
                   disabled={isRecording}
                 />
                 <Button 
                   onClick={toggleRecording} 
                   size="icon" 
-                  className={`h-12 w-12 ${isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                  className={`h-10 w-10 ${isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   variant={isRecording ? "default" : "outline"}
                   title="Voice input"
                 >
-                  {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                  {isRecording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                 </Button>
                 <Button 
                   onClick={handleSend} 
                   size="icon" 
-                  className="h-12 w-12" 
+                  className="h-10 w-10" 
                   disabled={isRecording || (!inputValue.trim() && !selectedImage && !selectedFile)}
                   title="Send message"
                 >
-                  <Send className="w-5 h-5" />
+                  <Send className="w-4 h-4" />
                 </Button>
               </div>
               {isRecording && (
@@ -512,6 +508,7 @@ export const ChatBot = () => {
               )}
             </div>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>
