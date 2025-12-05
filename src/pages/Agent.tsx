@@ -1,26 +1,52 @@
+import { motion } from 'framer-motion';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { aiAgent } from '@/data/mockData';
 
 const Agent = () => {
   return (
     <MainLayout>
-      <div className="p-6 lg:p-8 space-y-6">
+      <motion.div 
+        className="p-6 lg:p-8 space-y-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
         {/* Header */}
-        <header className="animate-fade-in">
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="text-3xl font-bold text-foreground mb-2">AI Agent</h1>
           <p className="text-muted-foreground">
             Learn about the AI-powered analytics engine powering VendorVerse.
           </p>
-        </header>
+        </motion.header>
 
         {/* Agent Overview */}
-        <div className="card-base p-8 animate-slide-in">
+        <motion.div 
+          className="card-base p-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           <div className="flex items-start gap-6">
-            <div className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0 animate-pulse-glow">
+            <motion.div 
+              className="w-20 h-20 rounded-2xl bg-primary/20 flex items-center justify-center flex-shrink-0"
+              animate={{ 
+                scale: [1, 1.1, 1],
+                boxShadow: [
+                  "0 0 0 0 rgba(14, 165, 233, 0)",
+                  "0 0 0 10px rgba(14, 165, 233, 0.1)",
+                  "0 0 0 0 rgba(14, 165, 233, 0)"
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
               <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
-            </div>
+            </motion.div>
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h2 className="text-2xl font-bold text-foreground">{aiAgent.name}</h2>
@@ -43,11 +69,20 @@ const Agent = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Capabilities */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="card-base p-6">
+        <motion.div 
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <motion.div 
+            className="card-base p-6"
+            whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}
+            transition={{ duration: 0.2 }}
+          >
             <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -70,9 +105,13 @@ const Agent = () => {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
 
-          <div className="card-base p-6">
+          <motion.div 
+            className="card-base p-6"
+            whileHover={{ scale: 1.02, boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}
+            transition={{ duration: 0.2 }}
+          >
             <h3 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
@@ -81,10 +120,12 @@ const Agent = () => {
             </h3>
             <div className="space-y-4">
               {aiAgent.models_used.map((model, index) => (
-                <div 
+                <motion.div 
                   key={index} 
-                  className="p-4 rounded-lg bg-muted animate-fade-in"
-                  style={{ animationDelay: `${index * 100}ms` }}
+                  className="p-4 rounded-lg bg-muted"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 + 0.3 }}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-foreground">{model.name}</span>
@@ -93,14 +134,19 @@ const Agent = () => {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground">{model.type}</p>
-                </div>
+                </motion.div>
               ))}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* How It Works */}
-        <div className="card-base p-6">
+        <motion.div 
+          className="card-base p-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
           <h3 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-2">
             <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -172,31 +218,52 @@ const Agent = () => {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Performance Stats */}
-        <div className="card-base p-6">
+        <motion.div 
+          className="card-base p-6"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+        >
           <h3 className="text-lg font-semibold text-foreground mb-4">Performance Statistics</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gradient">15M+</p>
-              <p className="text-sm text-muted-foreground">Data Points Processed</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gradient">99.7%</p>
-              <p className="text-sm text-muted-foreground">Uptime</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gradient">&lt;2s</p>
-              <p className="text-sm text-muted-foreground">Avg Response Time</p>
-            </div>
-            <div className="text-center">
-              <p className="text-3xl font-bold text-gradient">250+</p>
-              <p className="text-sm text-muted-foreground">Alerts Generated/Day</p>
-            </div>
-          </div>
-        </div>
-      </div>
+          <motion.div 
+            className="grid grid-cols-2 md:grid-cols-4 gap-6"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                  delayChildren: 0.6
+                }
+              }
+            }}
+          >
+            {[
+              { value: '15M+', label: 'Data Points Processed' },
+              { value: '99.7%', label: 'Uptime' },
+              { value: '<2s', label: 'Avg Response Time' },
+              { value: '250+', label: 'Alerts Generated/Day' }
+            ].map((stat, index) => (
+              <motion.div 
+                key={index}
+                className="text-center"
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+              >
+                <p className="text-3xl font-bold text-gradient">{stat.value}</p>
+                <p className="text-sm text-muted-foreground">{stat.label}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </MainLayout>
   );
 };

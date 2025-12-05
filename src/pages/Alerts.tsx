@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { AlertCard } from '@/components/alerts/AlertCard';
 import { SearchInput } from '@/components/common/SearchInput';
@@ -46,39 +47,92 @@ const Alerts = () => {
     <MainLayout>
       <div className="p-6 lg:p-8 space-y-6">
         {/* Header */}
-        <header className="animate-fade-in">
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="text-3xl font-bold text-foreground mb-2">Alerts & Notifications</h1>
           <p className="text-muted-foreground">
             Monitor and respond to supplier performance alerts.
           </p>
-        </header>
+        </motion.header>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="card-base p-4">
+        <motion.div 
+          className="grid grid-cols-2 md:grid-cols-5 gap-4"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.2
+              }
+            }
+          }}
+        >
+          <motion.div 
+            className="card-base p-4"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
             <p className="text-2xl font-bold text-foreground">{alertCounts.total}</p>
             <p className="text-sm text-muted-foreground">Total Alerts</p>
-          </div>
-          <div className="card-base p-4 border-l-4 border-l-primary">
+          </motion.div>
+          <motion.div 
+            className="card-base p-4 border-l-4 border-l-primary"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
             <p className="text-2xl font-bold text-primary">{alertCounts.new}</p>
             <p className="text-sm text-muted-foreground">New</p>
-          </div>
-          <div className="card-base p-4 border-l-4 border-l-warning">
+          </motion.div>
+          <motion.div 
+            className="card-base p-4 border-l-4 border-l-warning"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
             <p className="text-2xl font-bold text-warning">{alertCounts.reviewed}</p>
             <p className="text-sm text-muted-foreground">Under Review</p>
-          </div>
-          <div className="card-base p-4 border-l-4 border-l-success">
+          </motion.div>
+          <motion.div 
+            className="card-base p-4 border-l-4 border-l-success"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
             <p className="text-2xl font-bold text-success">{alertCounts.resolved}</p>
             <p className="text-sm text-muted-foreground">Resolved</p>
-          </div>
-          <div className="card-base p-4 border-l-4 border-l-destructive">
+          </motion.div>
+          <motion.div 
+            className="card-base p-4 border-l-4 border-l-destructive"
+            variants={{
+              hidden: { opacity: 0, y: 20 },
+              visible: { opacity: 1, y: 0 }
+            }}
+          >
             <p className="text-2xl font-bold text-destructive">{alertCounts.critical}</p>
             <p className="text-sm text-muted-foreground">Critical Active</p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Filters */}
-        <div className="card-base p-4">
+        <motion.div 
+          className="card-base p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+        >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <SearchInput
@@ -121,30 +175,55 @@ const Alerts = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Alerts List */}
-        <div className="space-y-4">
+        <motion.div 
+          className="space-y-4"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.05,
+                delayChildren: 0.7
+              }
+            }
+          }}
+        >
           {filteredAlerts.length === 0 ? (
-            <div className="card-base p-12 text-center">
+            <motion.div 
+              className="card-base p-12 text-center"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
               <svg className="w-12 h-12 mx-auto text-muted-foreground mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h3 className="text-lg font-medium text-foreground mb-1">No alerts found</h3>
               <p className="text-muted-foreground">Try adjusting your filters or search query.</p>
-            </div>
+            </motion.div>
           ) : (
-            filteredAlerts.map((alert, index) => (
-              <div key={alert.alert_id} style={{ animationDelay: `${index * 50}ms` }} className="animate-fade-in">
+            filteredAlerts.map((alert) => (
+              <motion.div 
+                key={alert.alert_id}
+                variants={{
+                  hidden: { opacity: 0, x: -20 },
+                  visible: { opacity: 1, x: 0 }
+                }}
+              >
                 <AlertCard
                   alert={alert}
                   onReview={handleReview}
                   onResolve={handleResolve}
                 />
-              </div>
+              </motion.div>
             ))
           )}
-        </div>
+        </motion.div>
       </div>
     </MainLayout>
   );

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SupplierTable } from '@/components/suppliers/SupplierTable';
 import { SearchInput } from '@/components/common/SearchInput';
@@ -51,15 +52,24 @@ const Suppliers = () => {
     <MainLayout>
       <div className="p-6 lg:p-8 space-y-6">
         {/* Header */}
-        <header className="animate-fade-in">
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="text-3xl font-bold text-foreground mb-2">Supplier Management</h1>
           <p className="text-muted-foreground">
             View and manage all suppliers in your network.
           </p>
-        </header>
+        </motion.header>
 
         {/* Filters */}
-        <div className="card-base p-4">
+        <motion.div 
+          className="card-base p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <SearchInput
@@ -110,10 +120,15 @@ const Suppliers = () => {
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Supplier Table */}
-        <section className="card-base overflow-hidden">
+        <motion.section 
+          className="card-base overflow-hidden"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <div className="p-4 border-b border-border">
             <p className="text-sm text-muted-foreground">
               Showing {filteredSuppliers.length} supplier{filteredSuppliers.length !== 1 ? 's' : ''}
@@ -134,7 +149,7 @@ const Suppliers = () => {
               itemsPerPage={ITEMS_PER_PAGE}
             />
           )}
-        </section>
+        </motion.section>
       </div>
 
       <ReportModal

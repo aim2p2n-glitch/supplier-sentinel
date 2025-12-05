@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
 
@@ -75,11 +76,34 @@ export default function IncidentsPage() {
 
   return (
     <MainLayout>
-      <div className="p-6 space-y-8">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Incident Detection & Ingestion</h2>
-        <div className="overflow-x-auto">
+      <motion.div 
+        className="p-6 space-y-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        <motion.h2 
+          className="text-xl font-semibold text-foreground mb-4"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          Incident Detection & Ingestion
+        </motion.h2>
+        <motion.div 
+          className="overflow-x-auto"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           {loading ? (
-            <div className="text-center text-muted-foreground py-8">Loading incidents from LLM...</div>
+            <motion.div 
+              className="text-center text-muted-foreground py-8"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              Loading incidents from LLM...
+            </motion.div>
           ) : (
             <Table>
               <TableHeader>
@@ -101,7 +125,13 @@ export default function IncidentsPage() {
                   </TableRow>
                 ) : (
                   incidents.map((inc, idx) => (
-                    <TableRow key={inc.id} className="animate-fade-in" style={{ animationDelay: `${idx * 50}ms` }}>
+                    <motion.tr 
+                      key={inc.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4, delay: idx * 0.05 }}
+                      className="border-b border-border hover:bg-muted/50"
+                    >
                       <TableCell className="font-medium">{inc.type}</TableCell>
                       <TableCell>{inc.location}</TableCell>
                       <TableCell>{inc.severity}</TableCell>
@@ -110,14 +140,14 @@ export default function IncidentsPage() {
                      
                       <TableCell>{inc.affectedEntities.join(', ')}</TableCell>
                       <TableCell>{inc.description}</TableCell>
-                    </TableRow>
+                    </motion.tr>
                   ))
                 )}
               </TableBody>
             </Table>
           )}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </MainLayout>
   );
 }
