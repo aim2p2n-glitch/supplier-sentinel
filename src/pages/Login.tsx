@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, EyeOff, Lock, Mail, Zap } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, Zap, Sun, Moon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from '@/contexts/ThemeContext';
 import LogisticsAnimation from '@/components/auth/LogisticsAnimation';
 
 // Mock users database
@@ -23,6 +24,7 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,31 +55,48 @@ export default function Login() {
 
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+    <div className={`min-h-screen relative overflow-hidden ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50'}`}>
       {/* Three.js Animation Background */}
       <div className="absolute inset-0">
         <LogisticsAnimation />
       </div>
       
-      {/* Dark overlay for better readability */}
-      <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-[2px]" />
+      {/* Overlay for better readability */}
+      <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-amber-50/60'} backdrop-blur-[2px]`} />
       
       {/* Navbar */}
       <motion.nav
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="absolute top-0 left-0 right-0 z-20 border-b border-white/10 bg-slate-900/30 backdrop-blur-md"
+        className={`absolute top-0 left-0 right-0 z-20 ${theme === 'dark' ? 'border-b border-white/10 bg-slate-900/30' : 'border-b border-amber-900/10 bg-amber-50/30'} backdrop-blur-md`}
       >
         <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-              <Zap className="w-6 h-6 text-white" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-lg ${theme === 'dark' ? 'bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30' : 'bg-gradient-to-br from-teal-600 to-teal-700 shadow-lg shadow-teal-600/20'} flex items-center justify-center`}>
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-foreground">VendorVerse</h1>
+                <p className="text-primary text-xs tracking-wider">Supply Chain Intelligence</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">VendorVerse</h1>
-              <p className="text-primary text-xs tracking-wider">Supply Chain Intelligence</p>
-            </div>
+            
+            {/* Theme Toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleTheme}
+              className="h-10 w-10 rounded-full"
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {theme === 'dark' ? (
+                <Sun className="h-5 w-5 text-foreground" />
+              ) : (
+                <Moon className="h-5 w-5 text-foreground" />
+              )}
+            </Button>
           </div>
         </div>
       </motion.nav>

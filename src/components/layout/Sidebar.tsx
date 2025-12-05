@@ -1,5 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
+import { Button } from '@/components/ui/button';
 
 interface NavItem {
   label: string;
@@ -89,6 +92,7 @@ const languages = [
 export function Sidebar() {
   const location = useLocation();
   const { t, i18n } = useTranslation();
+  const { theme, toggleTheme } = useTheme();
   const userName = 'Piyush';
 
   return (
@@ -102,11 +106,29 @@ export function Sidebar() {
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Supplier Sentinel</h1>
+            <h1 className="text-lg font-bold text-foreground">VendorVerse</h1>
             <p className="text-xs text-muted-foreground">{t('supplier_excellence')}</p>
           </div>
         </Link>
       </div>
+
+      {/* Theme Toggle - Top Right */}
+      <div className="absolute top-6 right-4 z-10">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleTheme}
+          className="h-8 w-8 rounded-full hover:bg-sidebar-accent"
+          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? (
+            <Sun className="h-4 w-4 text-sidebar-foreground" />
+          ) : (
+            <Moon className="h-4 w-4 text-sidebar-foreground" />
+          )}
+        </Button>
+      </div>
+
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
