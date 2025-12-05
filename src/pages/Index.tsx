@@ -9,6 +9,7 @@ import { Pagination } from '@/components/common/Pagination';
 import { ReportModal } from '@/components/modals/ReportModal';
 import { suppliers, alerts } from '@/data/mockData';
 
+
 const ITEMS_PER_PAGE = 5;
 
 const Index = () => {
@@ -40,12 +41,13 @@ const Index = () => {
 
   return (
     <MainLayout>
+     
       <div className="p-6 lg:p-8 space-y-8">
         {/* Header */}
         <header className="animate-fade-in">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome back, <span className="text-gradient">Procurement Manager</span>
-          </h1>
+          {/* <h1 className="text-3xl font-bold text-foreground mb-2">
+            Welcome back, <span className="text-gradient">Mihika</span>
+          </h1> */}
           <p className="text-muted-foreground">
             Monitor supplier performance, identify risks, and make data-driven decisions.
           </p>

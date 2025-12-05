@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 interface NavItem {
   label: string;
@@ -8,7 +9,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    label: 'Dashboard',
+    label: 'dashboard',
     path: '/',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -17,7 +18,7 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    label: 'Suppliers',
+    label: 'suppliers',
     path: '/suppliers',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +27,7 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    label: 'Alerts',
+    label: 'alerts',
     path: '/alerts',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +36,7 @@ const navItems: NavItem[] = [
     ),
   },
   {
-    label: 'AI Agent',
+    label: 'ai_agent',
     path: '/agent',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,10 +44,34 @@ const navItems: NavItem[] = [
       </svg>
     ),
   },
+  {
+    label: 'incidents',
+    path: '/incidents',
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6 1a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+  },
+];
+
+const languages = [
+  { code: 'en', name: 'English' },
+  { code: 'es', name: 'Español' },
+  { code: 'fr', name: 'Français' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'zh', name: '中文' },
+  { code: 'hi', name: 'हिन्दी' },
+  { code: 'ar', name: 'العربية' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'pt', name: 'Português' },
+  { code: 'ja', name: '日本語' },
 ];
 
 export function Sidebar() {
   const location = useLocation();
+  const { t, i18n } = useTranslation();
+  const userName = 'Piyush';
 
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 bg-sidebar border-r border-sidebar-border flex flex-col z-50">
@@ -60,17 +85,15 @@ export function Sidebar() {
           </div>
           <div>
             <h1 className="text-lg font-bold text-foreground">VendorVerse</h1>
-            <p className="text-xs text-muted-foreground">Supplier Excellence</p>
+            <p className="text-xs text-muted-foreground">{t('supplier_excellence')}</p>
           </div>
         </Link>
       </div>
-
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-1">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path !== '/' && location.pathname.startsWith(item.path));
-          
           return (
             <Link
               key={item.path}
@@ -78,12 +101,11 @@ export function Sidebar() {
               className={isActive ? 'nav-item-active' : 'nav-item'}
             >
               {item.icon}
-              <span>{item.label}</span>
+              <span>{t(item.label)}</span>
             </Link>
           );
         })}
       </nav>
-
       {/* Footer */}
       <div className="p-4 border-t border-sidebar-border">
         <div className="card-base p-3">
@@ -92,9 +114,19 @@ export function Sidebar() {
               <span className="text-sm font-medium text-primary">PM</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">Procurement Manager</p>
+              <p className="text-sm font-medium text-foreground truncate">{userName}</p>
               <p className="text-xs text-muted-foreground">Admin Access</p>
             </div>
+            <select
+              value={i18n.language}
+              onChange={e => i18n.changeLanguage(e.target.value)}
+              className="border rounded px-2 py-1 text-xs bg-background"
+              style={{ minWidth: 80 }}
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code}>{lang.name}</option>
+              ))}
+            </select>
           </div>
         </div>
       </div>

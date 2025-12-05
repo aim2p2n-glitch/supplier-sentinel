@@ -9,6 +9,7 @@ import SupplierDetail from "./pages/SupplierDetail";
 import Alerts from "./pages/Alerts";
 import Agent from "./pages/Agent";
 import NotFound from "./pages/NotFound";
+import IncidentsPage from "./pages/Incidents";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/suppliers/:id" element={<SupplierDetail />} />
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/agent" element={<Agent />} />
+          <Route path="/incidents" element={<IncidentsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

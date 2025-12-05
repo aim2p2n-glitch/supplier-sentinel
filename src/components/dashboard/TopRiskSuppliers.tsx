@@ -2,12 +2,15 @@ import { Link } from 'react-router-dom';
 import { Supplier } from '@/data/mockData';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DonutChart } from '@/components/common/SimpleChart';
+import { useTranslation } from 'react-i18next';
 
 interface TopRiskSuppliersProps {
   suppliers: Supplier[];
 }
 
 export function TopRiskSuppliers({ suppliers }: TopRiskSuppliersProps) {
+  const { t } = useTranslation();
+
   const riskSuppliers = suppliers
     .filter(s => s.risk_level !== 'Low')
     .sort((a, b) => a.overall_score - b.overall_score)
@@ -22,15 +25,15 @@ export function TopRiskSuppliers({ suppliers }: TopRiskSuppliersProps) {
   return (
     <div className="card-base p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-foreground">Top At-Risk Suppliers</h3>
+        <h3 className="text-lg font-semibold text-foreground">{t('top_at_risk_suppliers')}</h3>
         <Link to="/suppliers?filter=at-risk" className="text-sm text-primary hover:underline">
-          View all
+          {t('view_all')}
         </Link>
       </div>
 
       <div className="space-y-4">
         {riskSuppliers.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">No at-risk suppliers detected</p>
+          <p className="text-muted-foreground text-center py-8">{t('no_at_risk_suppliers')}</p>
         ) : (
           riskSuppliers.map((supplier, index) => (
             <Link
