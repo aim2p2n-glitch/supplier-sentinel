@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { MetricCard } from '@/components/common/MetricCard';

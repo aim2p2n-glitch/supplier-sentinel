@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SummaryCards } from '@/components/dashboard/SummaryCards';
 import { TopRiskSuppliers } from '@/components/dashboard/TopRiskSuppliers';
@@ -7,6 +8,7 @@ import { SupplierTable } from '@/components/suppliers/SupplierTable';
 import { SearchInput } from '@/components/common/SearchInput';
 import { Pagination } from '@/components/common/Pagination';
 import { ReportModal } from '@/components/modals/ReportModal';
+import { ChatBot } from '@/components/chat/ChatBot';
 import { suppliers, alerts } from '@/data/mockData';
 
 
@@ -41,39 +43,70 @@ const Index = () => {
 
   return (
     <MainLayout>
-     
-      <div className="p-6 lg:p-8 space-y-8">
+      <div className="p-6 lg:p-8 space-y-8 relative" style={{ zIndex: 10 }}>
         {/* Header */}
-        <header className="animate-fade-in">
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="transform transition-all duration-500 hover:scale-[1.01]"
+        >
           {/* <h1 className="text-3xl font-bold text-foreground mb-2">
             Welcome back, <span className="text-gradient">Mihika</span>
           </h1> */}
           <p className="text-muted-foreground">
             Monitor supplier performance, identify risks, and make data-driven decisions.
           </p>
-        </header>
+        </motion.header>
 
         {/* Summary Cards */}
-        <section aria-labelledby="summary-heading">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          aria-labelledby="summary-heading"
+        >
           <h2 id="summary-heading" className="sr-only">Performance Summary</h2>
           <SummaryCards suppliers={suppliers} alerts={alerts} />
-        </section>
+        </motion.section>
 
         {/* Dashboard Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <TopRiskSuppliers suppliers={suppliers} />
-          <RecentAlerts alerts={alerts} />
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            whileHover={{ scale: 1.03, y: -5 }}
+            className="transform transition-all duration-300 hover:shadow-2xl"
+          >
+            <TopRiskSuppliers suppliers={suppliers} />
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            whileHover={{ scale: 1.03, y: -5 }}
+            className="transform transition-all duration-300 hover:shadow-2xl"
+          >
+            <RecentAlerts alerts={alerts} />
+          </motion.div>
         </div>
 
         {/* Supplier List */}
-        <section aria-labelledby="suppliers-heading" className="card-base overflow-hidden">
-          <div className="p-6 border-b border-border">
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          aria-labelledby="suppliers-heading" 
+          className="card-base overflow-hidden transform transition-all duration-300 hover:shadow-2xl"
+        >
+          <div className="p-6 border-b border-border backdrop-blur-sm">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 id="suppliers-heading" className="text-lg font-semibold text-foreground">All Suppliers</h2>
                 <p className="text-sm text-muted-foreground">{filteredSuppliers.length} suppliers found</p>
               </div>
-              <div className="w-full sm:w-72">
+              <div className="w-full sm:w-72 transform transition-all duration-300 hover:scale-105">
                 <SearchInput
                   value={searchQuery}
                   onChange={(value) => {
@@ -100,7 +133,7 @@ const Index = () => {
               itemsPerPage={ITEMS_PER_PAGE}
             />
           )}
-        </section>
+        </motion.section>
       </div>
 
       {/* Report Modal */}
@@ -109,6 +142,9 @@ const Index = () => {
         isOpen={!!reportSupplierId}
         onClose={() => setReportSupplierId(null)}
       />
+
+      {/* Chatbot */}
+      <ChatBot />
     </MainLayout>
   );
 };
