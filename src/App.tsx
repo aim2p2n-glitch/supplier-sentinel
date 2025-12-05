@@ -11,6 +11,8 @@ import Alerts from "./pages/Alerts";
 import Agent from "./pages/Agent";
 import NotFound from "./pages/NotFound";
 import IncidentsPage from "./pages/Incidents";
+import SLAMonitor from "./pages/SLAMonitor";
+import Interventions from "./pages/Interventions";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,26 +25,24 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/dashboard" element={<Index />} />
-            <Route path="/suppliers" element={<Suppliers />} />
-            <Route path="/suppliers/:id" element={<SupplierDetail />} />
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/agent" element={<Agent />} />
-            <Route path="/incidents" element={<IncidentsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/dashboard" element={<Index />} />
+          <Route path="/suppliers" element={<Suppliers />} />
+          <Route path="/suppliers/:id" element={<SupplierDetail />} />
+          <Route path="/alerts" element={<Alerts />} />
+          <Route path="/agent" element={<Agent />} />
+          <Route path="/incidents" element={<IncidentsPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
 );
 
 export default App;
