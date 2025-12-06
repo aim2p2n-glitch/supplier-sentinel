@@ -78,19 +78,19 @@ export default function Register() {
   return (
     <div className={`min-h-screen relative overflow-hidden ${theme === 'dark' ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-br from-amber-50 via-orange-50 to-amber-50'}`}>
       {/* Three.js Animation Background */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-0">
         <LogisticsAnimation />
       </div>
       
       {/* Overlay for better readability */}
-      <div className={`absolute inset-0 ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-amber-50/60'} backdrop-blur-[2px]`} />
+      <div className={`absolute inset-0 z-[5] ${theme === 'dark' ? 'bg-slate-900/60' : 'bg-amber-50/60'} backdrop-blur-[2px]`} />
       
       {/* Navbar */}
       <motion.nav
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className={`absolute top-0 left-0 right-0 z-20 ${theme === 'dark' ? 'border-b border-white/10 bg-slate-900/30' : 'border-b border-amber-900/10 bg-amber-50/30'} backdrop-blur-md`}
+        className={`absolute top-0 left-0 right-0 z-30 ${theme === 'dark' ? 'border-b border-white/10 bg-slate-900/30' : 'border-b border-amber-900/10 bg-amber-50/30'} backdrop-blur-md`}
       >
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -123,7 +123,7 @@ export default function Register() {
       </motion.nav>
       
       {/* Register Card - Centered */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-8">
+      <div className="relative z-20 min-h-screen flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
