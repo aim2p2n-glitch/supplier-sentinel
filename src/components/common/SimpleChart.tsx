@@ -157,7 +157,7 @@ export function DonutChart({ value, max = 100, color = 'primary', size = 80, str
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-lg font-bold text-foreground">{value}%</span>
+        <span className="text-sm font-bold text-foreground">{value}</span>
         {label && <span className="text-xs text-muted-foreground">{label}</span>}
       </div>
     </div>

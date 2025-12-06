@@ -1,31 +1,22 @@
-import { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
-import PageLoader from '@/components/common/PageLoader';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { AccessibilityToggle } from '@/components/AccessibilityToggle';
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate page load
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return <PageLoader />;
-  }
 
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
-      <main className="ml-64 min-h-screen">
+      <main className="ml-64 min-h-screen relative">
+        {/* Theme Toggle & Accessibility - Top Right Corner */}
+        <div className="fixed top-4 right-6 z-40 flex items-center gap-2">
+          <AccessibilityToggle />
+          <ThemeToggle />
+        </div>
         {children}
       </main>
     </div>

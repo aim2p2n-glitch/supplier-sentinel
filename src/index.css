@@ -6,6 +6,70 @@
 
 @layer base {
   :root {
+    /* Light Mode Colors */
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --card-hover: 0 0% 98%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 174 72% 46%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 174 72% 56%;
+
+    --secondary: 220 13% 95%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 220 13% 95%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 174 72% 46%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 76% 42%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 222 47% 11%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 174 72% 46%;
+
+    --radius: 0.75rem;
+
+    /* Custom tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(174 72% 46%), hsl(174 72% 36%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(220 13% 98%) 50%, hsl(0 0% 100%) 100%);
+    
+    --shadow-glow: 0 0 40px hsl(174 72% 46% / 0.15);
+    --shadow-card: 0 4px 24px hsl(222 47% 11% / 0.08);
+    --shadow-elevated: 0 8px 32px hsl(222 47% 11% / 0.12);
+
+    --status-green: 142 76% 42%;
+    --status-amber: 38 92% 50%;
+    --status-red: 0 72% 51%;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 174 72% 46%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 95%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 174 72% 46%;
+  }
+
+  .dark {
+    /* Dark Mode Colors */
     --background: 222 47% 8%;
     --foreground: 210 40% 96%;
 
@@ -42,8 +106,6 @@
     --input: 222 30% 18%;
     --ring: 174 72% 46%;
 
-    --radius: 0.75rem;
-
     /* Custom tokens */
     --gradient-primary: linear-gradient(135deg, hsl(174 72% 46%), hsl(174 72% 36%));
     --gradient-card: linear-gradient(180deg, hsl(222 47% 13%), hsl(222 47% 10%));
@@ -52,10 +114,6 @@
     --shadow-glow: 0 0 40px hsl(174 72% 46% / 0.15);
     --shadow-card: 0 4px 24px hsl(222 47% 4% / 0.5);
     --shadow-elevated: 0 8px 32px hsl(222 47% 4% / 0.6);
-
-    --status-green: 142 76% 42%;
-    --status-amber: 38 92% 50%;
-    --status-red: 0 72% 51%;
 
     --sidebar-background: 222 47% 6%;
     --sidebar-foreground: 210 40% 90%;
@@ -227,16 +285,20 @@
   }
 
   .metric-value {
-    @apply text-3xl font-bold text-foreground;
+    @apply text-2xl font-bold text-foreground;
   }
 
   .metric-label {
-    @apply text-sm text-muted-foreground;
+    @apply text-sm text-muted-foreground font-medium;
   }
 
   .ai-summary-box {
     @apply card-base p-6 border-l-4 border-l-primary;
-    background: linear-gradient(135deg, hsl(174 72% 46% / 0.05), hsl(222 47% 11%));
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.08), hsl(var(--primary) / 0.02));
+  }
+
+  .dark .ai-summary-box {
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05));
   }
 
   .nav-item {

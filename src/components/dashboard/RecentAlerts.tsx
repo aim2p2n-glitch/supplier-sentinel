@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Alert } from '@/data/mockData';
+import { Alert } from '@/services/api';
 import { AlertCard } from '@/components/alerts/AlertCard';
 import { useTranslation } from 'react-i18next';
 
@@ -15,14 +15,14 @@ export function RecentAlerts({ alerts }: RecentAlertsProps) {
     .slice(0, 3);
 
   return (
-    <div className="card-base p-6">
+    <div className="card-base p-6 h-[500px] flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-foreground">{t('recent_alerts')}</h3>
-        <Link to="/alerts" className="text-sm text-primary hover:underline">
+        <h3 className="text-lg font-semibold text-foreground leading-tight">{t('recent_alerts')}</h3>
+        <Link to="/alerts" className="text-sm text-primary hover:underline whitespace-nowrap">
           {t('view_all')}
         </Link>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-3 flex-1 overflow-y-auto">
         {recentAlerts.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">{t('no_active_alerts')}</p>
         ) : (

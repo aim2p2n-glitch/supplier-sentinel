@@ -1,39 +1,31 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { AlertCard } from '@/components/alerts/AlertCard';
 import { SearchInput } from '@/components/common/SearchInput';
-import { alerts as initialAlerts } from '@/data/mockData';
+import { supplierService, Alert } from '@/services/api';
 
 const Alerts = () => {
-  const [alerts, setAlerts] = useState(initialAlerts);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [severityFilter, setSeverityFilter] = useState<string>('all');
+
+  // Fetch alerts from API
+  const { data: alerts = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['alerts'],
+    queryFn: () => supplierService.getAlerts(),
+    staleTime: 2 * 60 * 1000, // 2 minutes for alerts
+  });
 
   const filteredAlerts = useMemo(() => {
     return alerts.filter(alert => {
       const matchesSearch = alert.supplier_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         alert.message.toLowerCase().includes(searchQuery.toLowerCase());
       
-      const matchesStatus = statusFilter === 'all' || alert.status === statusFilter;
       const matchesSeverity = severityFilter === 'all' || alert.severity === severityFilter;
 
-      return matchesSearch && matchesStatus && matchesSeverity;
+      return matchesSearch && matchesSeverity;
     }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [alerts, searchQuery, statusFilter, severityFilter]);
-
-  const handleReview = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.alert_id === alertId ? { ...alert, status: 'Reviewed' } : alert
-    ));
-  };
-
-  const handleResolve = (alertId: string) => {
-    setAlerts(prev => prev.map(alert => 
-      alert.alert_id === alertId ? { ...alert, status: 'Resolved' } : alert
-    ));
-  };
+  }, [alerts, searchQuery, severityFilter]);
 
   const alertCounts = useMemo(() => ({
     total: alerts.length,
@@ -43,96 +35,72 @@ const Alerts = () => {
     critical: alerts.filter(a => a.severity === 'Critical' && a.status !== 'Resolved').length,
   }), [alerts]);
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="p-8 flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+          <p className="text-muted-foreground">Loading alerts...</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <MainLayout>
+        <div className="p-8 flex flex-col items-center justify-center min-h-[60vh]">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Failed to Load Alerts</h1>
+          <p className="text-muted-foreground mb-4">
+            {error instanceof Error ? error.message : 'Unable to fetch alerts data.'}
+          </p>
+          <button onClick={() => refetch()} className="btn-primary">
+            Retry
+          </button>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
       <div className="p-6 lg:p-8 space-y-6">
         {/* Header */}
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <header>
           <h1 className="text-3xl font-bold text-foreground mb-2">Alerts & Notifications</h1>
           <p className="text-muted-foreground">
             Monitor and respond to supplier performance alerts.
           </p>
-        </motion.header>
+        </header>
 
         {/* Stats */}
-        <motion.div 
-          className="grid grid-cols-2 md:grid-cols-5 gap-4"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2
-              }
-            }
-          }}
-        >
-          <motion.div 
-            className="card-base p-4"
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 }
-            }}
-          >
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="card-base p-4">
             <p className="text-2xl font-bold text-foreground">{alertCounts.total}</p>
             <p className="text-sm text-muted-foreground">Total Alerts</p>
-          </motion.div>
-          <motion.div 
-            className="card-base p-4 border-l-4 border-l-primary"
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 }
-            }}
-          >
+          </div>
+          <div className="card-base p-4 border-l-4 border-l-primary">
             <p className="text-2xl font-bold text-primary">{alertCounts.new}</p>
             <p className="text-sm text-muted-foreground">New</p>
-          </motion.div>
-          <motion.div 
-            className="card-base p-4 border-l-4 border-l-warning"
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 }
-            }}
-          >
+          </div>
+          <div className="card-base p-4 border-l-4 border-l-warning">
             <p className="text-2xl font-bold text-warning">{alertCounts.reviewed}</p>
             <p className="text-sm text-muted-foreground">Under Review</p>
-          </motion.div>
-          <motion.div 
-            className="card-base p-4 border-l-4 border-l-success"
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 }
-            }}
-          >
+          </div>
+          <div className="card-base p-4 border-l-4 border-l-success">
             <p className="text-2xl font-bold text-success">{alertCounts.resolved}</p>
             <p className="text-sm text-muted-foreground">Resolved</p>
-          </motion.div>
-          <motion.div 
-            className="card-base p-4 border-l-4 border-l-destructive"
-            variants={{
-              hidden: { opacity: 0, y: 20 },
-              visible: { opacity: 1, y: 0 }
-            }}
-          >
+          </div>
+          <div className="card-base p-4 border-l-4 border-l-destructive">
             <p className="text-2xl font-bold text-destructive">{alertCounts.critical}</p>
             <p className="text-sm text-muted-foreground">Critical Active</p>
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* Filters */}
-        <motion.div 
-          className="card-base p-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-        >
+        <div className="card-base p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <SearchInput
@@ -142,88 +110,42 @@ const Alerts = () => {
               />
             </div>
             
-            <div className="flex gap-4">
-              <div className="w-36">
-                <label htmlFor="status-filter" className="sr-only">Filter by Status</label>
-                <select
-                  id="status-filter"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="input-base"
-                >
-                  <option value="all">All Status</option>
-                  <option value="New">New</option>
-                  <option value="Reviewed">Reviewed</option>
-                  <option value="Resolved">Resolved</option>
-                </select>
-              </div>
-              
-              <div className="w-36">
-                <label htmlFor="severity-filter" className="sr-only">Filter by Severity</label>
-                <select
-                  id="severity-filter"
-                  value={severityFilter}
-                  onChange={(e) => setSeverityFilter(e.target.value)}
-                  className="input-base"
-                >
-                  <option value="all">All Severity</option>
-                  <option value="Critical">Critical</option>
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
-                </select>
-              </div>
+            <div className="w-40">
+              <label htmlFor="severity-filter" className="sr-only">Filter by Severity</label>
+              <select
+                id="severity-filter"
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="input-base"
+              >
+                <option value="all">All Severity</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Alerts List */}
-        <motion.div 
-          className="space-y-4"
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.05,
-                delayChildren: 0.7
-              }
-            }
-          }}
-        >
+        <div className="space-y-4">
           {filteredAlerts.length === 0 ? (
-            <motion.div 
-              className="card-base p-12 text-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
+            <div className="card-base p-12 text-center">
               <svg className="w-12 h-12 mx-auto text-muted-foreground mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h3 className="text-lg font-medium text-foreground mb-1">No alerts found</h3>
               <p className="text-muted-foreground">Try adjusting your filters or search query.</p>
-            </motion.div>
+            </div>
           ) : (
-            filteredAlerts.map((alert) => (
-              <motion.div 
-                key={alert.alert_id}
-                variants={{
-                  hidden: { opacity: 0, x: -20 },
-                  visible: { opacity: 1, x: 0 }
-                }}
-              >
-                <AlertCard
-                  alert={alert}
-                  onReview={handleReview}
-                  onResolve={handleResolve}
-                />
-              </motion.div>
+            filteredAlerts.map((alert, index) => (
+              <div key={alert.alert_id} style={{ animationDelay: `${index * 50}ms` }} className="animate-fade-in">
+                <AlertCard alert={alert} />
+              </div>
             ))
           )}
-        </motion.div>
+        </div>
       </div>
     </MainLayout>
   );

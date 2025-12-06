@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { SupplierTable } from '@/components/suppliers/SupplierTable';
 import { SearchInput } from '@/components/common/SearchInput';
 import { Pagination } from '@/components/common/Pagination';
 import { ReportModal } from '@/components/modals/ReportModal';
-import { suppliers } from '@/data/mockData';
+import { supplierService } from '@/services/api';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -16,10 +16,17 @@ const Suppliers = () => {
   const [regionFilter, setRegionFilter] = useState<string>('all');
   const [reportSupplierId, setReportSupplierId] = useState<string | null>(null);
 
+  // Fetch suppliers from API
+  const { data: suppliers = [], isLoading, error } = useQuery({
+    queryKey: ['suppliers'],
+    queryFn: supplierService.getSuppliers,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const regions = useMemo(() => {
     const uniqueRegions = new Set(suppliers.map(s => s.region));
     return ['all', ...Array.from(uniqueRegions)];
-  }, []);
+  }, [suppliers]);
 
   const filteredSuppliers = useMemo(() => {
     return suppliers.filter(supplier => {
@@ -32,7 +39,7 @@ const Suppliers = () => {
 
       return matchesSearch && matchesRisk && matchesRegion;
     });
-  }, [searchQuery, riskFilter, regionFilter]);
+  }, [suppliers, searchQuery, riskFilter, regionFilter]);
 
   const totalPages = Math.ceil(filteredSuppliers.length / ITEMS_PER_PAGE);
   const paginatedSuppliers = filteredSuppliers.slice(
@@ -52,24 +59,15 @@ const Suppliers = () => {
     <MainLayout>
       <div className="p-6 lg:p-8 space-y-6">
         {/* Header */}
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <header className="animate-fade-in">
           <h1 className="text-3xl font-bold text-foreground mb-2">Supplier Management</h1>
           <p className="text-muted-foreground">
             View and manage all suppliers in your network.
           </p>
-        </motion.header>
+        </header>
 
         {/* Filters */}
-        <motion.div 
-          className="card-base p-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
+        <div className="card-base p-4 animate-slide-up" style={{ animationDelay: '100ms' }}>
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <SearchInput
@@ -120,15 +118,10 @@ const Suppliers = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Supplier Table */}
-        <motion.section 
-          className="card-base overflow-hidden"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
+        <section className="card-base overflow-hidden animate-slide-up" style={{ animationDelay: '200ms' }}>
           <div className="p-4 border-b border-border">
             <p className="text-sm text-muted-foreground">
               Showing {filteredSuppliers.length} supplier{filteredSuppliers.length !== 1 ? 's' : ''}
@@ -149,7 +142,38 @@ const Suppliers = () => {
               itemsPerPage={ITEMS_PER_PAGE}
             />
           )}
-        </motion.section>
+        </section>
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+              <p className="text-muted-foreground">Loading suppliers data...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent mb-4"></div>
+              <p className="text-muted-foreground">Loading suppliers data...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="text-destructive text-5xl mb-4">⚠️</div>
+              <p className="text-destructive font-semibold mb-2">Failed to load suppliers</p>
+              <p className="text-muted-foreground text-sm">{error instanceof Error ? error.message : 'Unknown error'}</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <ReportModal

@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Mic, MicOff, Image as ImageIcon, Paperclip, FileText } from 'lucide-react';
+import { MessageCircle, X, Send, Mic, MicOff, Image as ImageIcon, Paperclip, FileText, Loader2, Volume2, VolumeX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { suppliers, alerts } from '@/data/mockData';
+import { supplierService } from '@/services/api';
 
 interface Message {
   id: string;
@@ -16,6 +16,7 @@ interface Message {
     name: string;
     content: string;
   };
+  isLoading?: boolean;
 }
 
 export const ChatBot = () => {
@@ -30,12 +31,15 @@ export const ChatBot = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
+  const [isTTSEnabled, setIsTTSEnabled] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<{ name: string; content: string } | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
+  const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -65,95 +69,72 @@ export const ChatBot = () => {
     }
   }, []);
 
+  // Cleanup speech synthesis on unmount
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      const scrollElement = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollElement) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
     }
   }, [messages]);
 
-  const generateResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-
-    // High risk suppliers
-    if (lowerMessage.includes('high risk') || lowerMessage.includes('risky')) {
-      const highRiskSuppliers = suppliers.filter(s => s.risk_level === 'High');
-      if (highRiskSuppliers.length > 0) {
-        return `I found ${highRiskSuppliers.length} high-risk suppliers: ${highRiskSuppliers.map(s => s.name).join(', ')}. These suppliers need immediate attention.`;
-      }
-      return 'Currently, there are no high-risk suppliers in the system.';
+  // Text-to-Speech function
+  const speakText = (text: string) => {
+    if (!isTTSEnabled || !text) return;
+    
+    // Cancel any ongoing speech
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
     }
 
-    // Total suppliers
-    if (lowerMessage.includes('how many suppliers') || lowerMessage.includes('total suppliers')) {
-      return `There are ${suppliers.length} suppliers in the system. ${suppliers.filter(s => s.risk_level === 'Low').length} are low risk, ${suppliers.filter(s => s.risk_level === 'Medium').length} are medium risk, and ${suppliers.filter(s => s.risk_level === 'High').length} are high risk.`;
-    }
-
-    // Alerts
-    if (lowerMessage.includes('alert') || lowerMessage.includes('issue')) {
-      const newAlerts = alerts.filter(a => a.status === 'New');
-      const criticalAlerts = alerts.filter(a => a.severity === 'Critical');
-      return `There are ${newAlerts.length} new alerts and ${criticalAlerts.length} critical alerts requiring attention. The most recent alert is: "${alerts[0].message}"`;
-    }
-
-    // Best performers
-    if (lowerMessage.includes('best') || lowerMessage.includes('top performer')) {
-      const topSuppliers = suppliers
-        .sort((a, b) => b.overall_score - a.overall_score)
-        .slice(0, 3);
-      return `Top 3 suppliers by performance: 1) ${topSuppliers[0].name} (${topSuppliers[0].overall_score}/100), 2) ${topSuppliers[1].name} (${topSuppliers[1].overall_score}/100), 3) ${topSuppliers[2].name} (${topSuppliers[2].overall_score}/100)`;
-    }
-
-    // Worst performers
-    if (lowerMessage.includes('worst') || lowerMessage.includes('poor') || lowerMessage.includes('low performance')) {
-      const worstSuppliers = suppliers
-        .sort((a, b) => a.overall_score - b.overall_score)
-        .slice(0, 3);
-      return `Suppliers needing improvement: 1) ${worstSuppliers[0].name} (${worstSuppliers[0].overall_score}/100), 2) ${worstSuppliers[1].name} (${worstSuppliers[1].overall_score}/100), 3) ${worstSuppliers[2].name} (${worstSuppliers[2].overall_score}/100)`;
-    }
-
-    // Specific supplier lookup
-    const supplierMatch = suppliers.find(s => 
-      lowerMessage.includes(s.name.toLowerCase()) || 
-      lowerMessage.includes(s.supplier_id.toLowerCase())
-    );
-    if (supplierMatch) {
-      return `${supplierMatch.name} - Risk Level: ${supplierMatch.risk_level}, Overall Score: ${supplierMatch.overall_score}/100, On-Time Delivery: ${supplierMatch.otd_percentage}%, Defect Rate: ${supplierMatch.defect_rate}%, Region: ${supplierMatch.region}`;
-    }
-
-    // Region-based queries
-    if (lowerMessage.includes('region') || lowerMessage.includes('asia') || lowerMessage.includes('europe') || lowerMessage.includes('north america')) {
-      const regions = [...new Set(suppliers.map(s => s.region))];
-      return `We have suppliers in ${regions.length} regions: ${regions.join(', ')}. Which region would you like to know more about?`;
-    }
-
-    // Delivery performance
-    if (lowerMessage.includes('delivery') || lowerMessage.includes('otd') || lowerMessage.includes('on-time')) {
-      const avgOTD = (suppliers.reduce((sum, s) => sum + s.otd_percentage, 0) / suppliers.length).toFixed(1);
-      const poorDelivery = suppliers.filter(s => s.otd_percentage < 90);
-      return `Average on-time delivery across all suppliers is ${avgOTD}%. ${poorDelivery.length} suppliers have OTD below 90% and need attention.`;
-    }
-
-    // Quality/defects
-    if (lowerMessage.includes('quality') || lowerMessage.includes('defect')) {
-      const avgDefect = (suppliers.reduce((sum, s) => sum + s.defect_rate, 0) / suppliers.length).toFixed(2);
-      const highDefects = suppliers.filter(s => s.defect_rate > 3);
-      return `Average defect rate is ${avgDefect}%. ${highDefects.length} suppliers have defect rates above 3% threshold.`;
-    }
-
-    // Default response
-    return "I can help you with: supplier risk levels, performance metrics, alerts, delivery statistics, quality reports, and specific supplier information. What would you like to know?";
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    utterance.lang = 'en-US';
+    
+    speechSynthesisRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
   };
 
-  const handleSend = () => {
+  const toggleTTS = () => {
+    setIsTTSEnabled(!isTTSEnabled);
+    // Stop any ongoing speech when disabling
+    if (isTTSEnabled && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
+  // Remove special characters from text
+  const cleanText = (text: string): string => {
+    if (!text || typeof text !== 'string') return '';
+    return text.replace(/\*/g, ''); // Remove all asterisks
+  };
+
+  const handleSend = async () => {
     if (!inputValue.trim() && !selectedImage && !selectedFile) return;
 
     let messageText = inputValue;
+    let messageToSend = inputValue;
     
-    // If file was uploaded, include its content in the message
+    // If file was uploaded, show only filename in UI but send full content to backend
     if (selectedFile) {
-      messageText = `${inputValue ? inputValue + '\n\n' : ''}📄 File: ${selectedFile.name}\n\nContent:\n${selectedFile.content}`;
+      // For UI display: only show filename
+      messageText = `${inputValue ? inputValue + ' ' : ''}📄 ${selectedFile.name}`;
+      // For backend: include full content
+      messageToSend = `${inputValue ? inputValue + '\n\n' : ''}Document: ${selectedFile.name}\n\nContent:\n${selectedFile.content}`;
     } else if (!inputValue && selectedImage) {
       messageText = 'Sent an image';
+      messageToSend = 'Sent an image';
     }
 
     const userMessage: Message = {
@@ -167,31 +148,62 @@ export const ChatBot = () => {
 
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
+    const imageToSend = selectedImage;
     setSelectedImage(null);
     setSelectedFile(null);
+    setIsLoadingResponse(true);
 
-    // Simulate bot response with slight delay
-    setTimeout(() => {
-      let responseText = generateResponse(messageText);
+    // Add loading message
+    const loadingMessage: Message = {
+      id: `loading-${Date.now()}`,
+      text: '',
+      sender: 'bot',
+      timestamp: new Date(),
+      isLoading: true,
+    };
+    setMessages(prev => [...prev, loadingMessage]);
+
+    try {
+      // Call the backend API with image if present, use messageToSend for full content
+      const responseText = await supplierService.sendChatMessage(messageToSend, imageToSend || undefined);
       
-      // If image was sent, acknowledge it
-      if (selectedImage) {
-        responseText = "I can see you've shared an image. " + responseText;
+      // Speak the response if TTS is enabled
+      if (isTTSEnabled && responseText) {
+        speakText(responseText);
       }
       
-      // If file was sent, acknowledge it
-      if (selectedFile) {
-        responseText = `I've received and analyzed your file "${selectedFile.name}". ` + responseText;
-      }
-
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: responseText,
-        sender: 'bot',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, botResponse]);
-    }, 500);
+      // Remove loading message and add actual response
+      setMessages(prev => {
+        const filtered = prev.filter(m => !m.isLoading);
+        return [
+          ...filtered,
+          {
+            id: Date.now().toString(),
+            text: responseText, // Show original response
+            sender: 'bot',
+            timestamp: new Date(),
+          },
+        ];
+      });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      
+      // Remove loading message and show error
+      setMessages(prev => {
+        const filtered = prev.filter(m => !m.isLoading);
+        return [
+          ...filtered,
+          {
+            id: Date.now().toString(),
+            text: 'Sorry, I encountered an error processing your request. Please try again.',
+            sender: 'bot',
+            timestamp: new Date(),
+          },
+        ];
+      });
+    } finally {
+      setIsLoadingResponse(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -237,31 +249,19 @@ export const ChatBot = () => {
   const handleDocumentSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Only accept text files
+      if (!file.type.includes('text') && !file.name.endsWith('.txt')) {
+        alert('Please upload only text (.txt) files');
+        return;
+      }
+      
       const reader = new FileReader();
       reader.onloadend = () => {
         const content = reader.result as string;
         
-        // Extract text based on file type
-        let extractedText = '';
-        
-        if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-          extractedText = content;
-        } else if (file.type === 'application/json' || file.name.endsWith('.json')) {
-          try {
-            const jsonData = JSON.parse(content);
-            extractedText = JSON.stringify(jsonData, null, 2);
-          } catch {
-            extractedText = content;
-          }
-        } else if (file.name.endsWith('.csv')) {
-          extractedText = content;
-        } else {
-          extractedText = `File type: ${file.type}\nFile uploaded successfully. Text content may be limited for this file type.`;
-        }
-        
         setSelectedFile({
           name: file.name,
-          content: extractedText.slice(0, 5000), // Limit to 5000 characters
+          content: content, // Send full content to backend
         });
       };
       reader.readAsText(file);
@@ -311,7 +311,7 @@ export const ChatBot = () => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="fixed bottom-24 right-6 w-[90vw] md:w-[380px] h-[500px] bg-card border border-border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
+              className="fixed bottom-24 right-6 w-[90vw] md:w-[520px] h-[650px] bg-card border border-border rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden"
             >
             {/* Header */}
             <div className="p-4 border-b border-border bg-gradient-to-r from-primary/10 to-primary/5">
@@ -320,14 +320,26 @@ export const ChatBot = () => {
                   <MessageCircle className="w-5 h-5 text-primary" />
                   Supplier Assistant
                 </h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsOpen(false)}
-                  className="hover:bg-primary/10 h-8 w-8"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  {/* Text-to-Speech Toggle */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleTTS}
+                    className={`hover:bg-primary/10 h-8 w-8 ${isTTSEnabled ? 'text-primary' : 'text-muted-foreground'}`}
+                    title={isTTSEnabled ? 'Disable voice responses' : 'Enable voice responses'}
+                  >
+                    {isTTSEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsOpen(false)}
+                    className="hover:bg-primary/10 h-8 w-8"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -348,34 +360,50 @@ export const ChatBot = () => {
                           : 'bg-muted'
                       }`}
                     >
-                      {message.image && (
-                        <div className="mb-2">
-                          <img 
-                            src={message.image} 
-                            alt="Uploaded" 
-                            className="rounded-lg max-w-full h-auto max-h-64 object-cover"
-                          />
+                      {message.isLoading ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm flex items-center gap-1">
+                            <span className="animate-bounce" style={{ animationDelay: '0ms' }}>.</span>
+                            <span className="animate-bounce" style={{ animationDelay: '150ms' }}>.</span>
+                            <span className="animate-bounce" style={{ animationDelay: '300ms' }}>.</span>
+                          </span>
                         </div>
+                      ) : (
+                        <>
+                          {message.image && (
+                            <div className="mb-2">
+                              <img 
+                                src={message.image} 
+                                alt="Uploaded" 
+                                className="rounded-lg max-w-full h-auto max-h-64 object-cover"
+                              />
+                            </div>
+                          )}
+                          {message.file && (
+                            <div className="mb-2 p-3 bg-background/50 rounded border border-border">
+                              <div className="flex items-center gap-2 mb-2">
+                                <FileText className="w-4 h-4" />
+                                <span className="font-medium text-xs">{message.file.name}</span>
+                              </div>
+                              <pre className="text-xs overflow-auto max-h-32 whitespace-pre-wrap">
+                                {message.file.content.slice(0, 300)}
+                                {message.file.content.length > 300 && '...'}
+                              </pre>
+                            </div>
+                          )}
+                          {message.text && (
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                              {message.text}
+                            </p>
+                          )}
+                          <p className="text-xs opacity-70 mt-2">
+                            {message.timestamp.toLocaleTimeString([], { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
+                          </p>
+                        </>
                       )}
-                      {message.file && (
-                        <div className="mb-2 p-3 bg-background/50 rounded border border-border">
-                          <div className="flex items-center gap-2 mb-2">
-                            <FileText className="w-4 h-4" />
-                            <span className="font-medium text-xs">{message.file.name}</span>
-                          </div>
-                          <pre className="text-xs overflow-auto max-h-32 whitespace-pre-wrap">
-                            {message.file.content.slice(0, 300)}
-                            {message.file.content.length > 300 && '...'}
-                          </pre>
-                        </div>
-                      )}
-                      <p className="text-sm leading-relaxed">{message.text}</p>
-                      <p className="text-xs opacity-70 mt-2">
-                        {message.timestamp.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </p>
                     </div>
                   </motion.div>
                 ))}
@@ -419,7 +447,7 @@ export const ChatBot = () => {
                     <div className="flex-1">
                       <p className="font-medium text-sm">{selectedFile.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {selectedFile.content.length} characters
+                        Text file ready to send
                       </p>
                     </div>
                     <Button
@@ -445,7 +473,7 @@ export const ChatBot = () => {
                 <input
                   ref={documentInputRef}
                   type="file"
-                  accept=".txt,.json,.csv,.md,text/plain,application/json"
+                  accept=".txt,text/plain"
                   onChange={handleDocumentSelect}
                   className="hidden"
                 />
@@ -454,7 +482,7 @@ export const ChatBot = () => {
                   size="icon" 
                   variant="outline"
                   className="h-10 w-10"
-                  disabled={isRecording}
+                  disabled={isRecording || isLoadingResponse}
                   title="Upload image"
                 >
                   <ImageIcon className="w-4 h-4" />
@@ -464,7 +492,7 @@ export const ChatBot = () => {
                   size="icon" 
                   variant="outline"
                   className="h-10 w-10"
-                  disabled={isRecording}
+                  disabled={isRecording || isLoadingResponse}
                   title="Upload document"
                 >
                   <Paperclip className="w-4 h-4" />
@@ -473,9 +501,9 @@ export const ChatBot = () => {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isRecording ? "Listening..." : "Ask about suppliers..."}
+                  placeholder={isRecording ? "Listening..." : isLoadingResponse ? "Please wait..." : "Ask about suppliers..."}
                   className="flex-1 h-10"
-                  disabled={isRecording}
+                  disabled={isRecording || isLoadingResponse}
                 />
                 <Button 
                   onClick={toggleRecording} 
@@ -490,10 +518,14 @@ export const ChatBot = () => {
                   onClick={handleSend} 
                   size="icon" 
                   className="h-10 w-10" 
-                  disabled={isRecording || (!inputValue.trim() && !selectedImage && !selectedFile)}
+                  disabled={isRecording || isLoadingResponse || (!inputValue.trim() && !selectedImage && !selectedFile)}
                   title="Send message"
                 >
-                  <Send className="w-4 h-4" />
+                  {isLoadingResponse ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
                 </Button>
               </div>
               {isRecording && (

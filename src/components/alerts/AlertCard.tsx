@@ -1,13 +1,11 @@
-import { Alert } from '@/data/mockData';
+import { Alert } from '@/services/api';
 import { StatusBadge } from '@/components/common/StatusBadge';
 
 interface AlertCardProps {
   alert: Alert;
-  onReview?: (alertId: string) => void;
-  onResolve?: (alertId: string) => void;
 }
 
-export function AlertCard({ alert, onReview, onResolve }: AlertCardProps) {
+export function AlertCard({ alert }: AlertCardProps) {
   const getTypeIcon = () => {
     switch (alert.type) {
       case 'Quality':
@@ -93,25 +91,6 @@ export function AlertCard({ alert, onReview, onResolve }: AlertCardProps) {
             <span className="text-xs text-muted-foreground">
               {formatTimestamp(alert.timestamp)} • {alert.type}
             </span>
-            
-            <div className="flex items-center gap-2">
-              {alert.status === 'New' && onReview && (
-                <button
-                  onClick={() => onReview(alert.alert_id)}
-                  className="btn-secondary text-xs py-1 px-3"
-                >
-                  Mark Reviewed
-                </button>
-              )}
-              {alert.status !== 'Resolved' && onResolve && (
-                <button
-                  onClick={() => onResolve(alert.alert_id)}
-                  className="btn-primary text-xs py-1 px-3"
-                >
-                  Resolve
-                </button>
-              )}
-            </div>
           </div>
         </div>
       </div>

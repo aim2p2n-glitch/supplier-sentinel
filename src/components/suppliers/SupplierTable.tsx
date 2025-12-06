@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Supplier } from '@/data/mockData';
+import { Supplier } from '@/services/api';
 import { StatusBadge } from '@/components/common/StatusBadge';
 
 interface SupplierTableProps {

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Supplier } from '@/data/mockData';
+import { Supplier } from '@/services/api';
 import { StatusBadge } from '@/components/common/StatusBadge';
 import { DonutChart } from '@/components/common/SimpleChart';
 import { useTranslation } from 'react-i18next';
@@ -23,15 +23,15 @@ export function TopRiskSuppliers({ suppliers }: TopRiskSuppliersProps) {
   };
 
   return (
-    <div className="card-base p-6">
+    <div className="card-base p-6 h-[500px] flex flex-col">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-foreground">{t('top_at_risk_suppliers')}</h3>
-        <Link to="/suppliers?filter=at-risk" className="text-sm text-primary hover:underline">
+        <h3 className="text-lg font-semibold text-foreground leading-tight">{t('top_at_risk_suppliers')}</h3>
+        <Link to="/suppliers?filter=at-risk" className="text-sm text-primary hover:underline whitespace-nowrap">
           {t('view_all')}
         </Link>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 flex-1 overflow-y-auto">
         {riskSuppliers.length === 0 ? (
           <p className="text-muted-foreground text-center py-8">{t('no_at_risk_suppliers')}</p>
         ) : (
